@@ -1,19 +1,25 @@
+/*
+reffernce 
+describing plot area with axis: http://yoppa.org/bma10/1250.html
+implementing queue: http://www.atmarkit.co.jp/ait/articles/1010/14/news127.html
+*/
+
 import processing.serial.*;
 
 Serial myPort;
 
-int data;
-int cnt = 0; 
-float V_ref = 3.0;
-float V_cc = 5.1;
-float V_out;
-float amp;
+int data;           // digital value from adc of Arduino
+int cnt = 0;        // count of plot area
+float V_ref = 3.0;  // reference voltage of GROVE I2C ADC
+float V_cc = 5.1;   // supply voltage on ammeter ACS714(-5A to +5A)
+float V_out;        // analog output of ammeter
+float amp;          // measured current
 float amp_mean;
-Queue buff = new Queue();
+Queue buff = new Queue(500);
 
-float plotX1, plotY1;
-float plotX2, plotY2;
-float labelX, labelY;
+float plotX1, plotY1;  // define graphic area
+float plotX2, plotY2;  // 
+float labelX, labelY;  // position of each labels
 
 float dataMin = -0.5;
 float dataMax = 0.5;
@@ -154,10 +160,15 @@ void drawEllipse(float x, float y) {
 }
 
 static class Queue {
-  final int SIZE = 500;
-  private float[] data = new float[SIZE+1];
+  private int size = 500;
+  private float[] data = new float[size+1];
   private int head = 0;
   private int tail = 0;
+  
+  Queue(int size){
+    // constructor
+    this.size = size;
+  }
 
   boolean enqueue(float item) {
     if (((tail+1) % data.length) == head) {
@@ -179,16 +190,15 @@ static class Queue {
 
   float sum() {
     float sumx = 0;
-    for (int i=0; i<SIZE; i++) {
+    for (int i=0; i<size; i++) {
       sumx += data[i];
     }
     return sumx;
   }
   
   float mean() {
-    return sum()/SIZE;
+    return sum()/size;
   }
-  
 
   boolean isEmpty() {
     return (tail == head);
@@ -198,4 +208,3 @@ static class Queue {
     return (((tail+1) % data.length) == head);
   }
 }
-
