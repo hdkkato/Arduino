@@ -4,34 +4,33 @@ https://www.adafruit.com/products/1063
 
 Electret Capsule Microphone
 supply curent 0.5 mA max
+Vcc: 3 V (standard) to 10 V (max)
 Vout: o to Vcc
-Vout in the state of silence: 1.0V
-base signal at Vcc = 3.3 V: 1.0 / Vcc * 1024 = 310
+Vout in the state of silence: Vcc/2
+base signal at Vcc = 3.3 V: 3.3/2 5 * 1024 = 337
 
 MAX4466 Low-Noise Microphone Amp
 
 */
 
 const int micPin = A0;  // analog pin
-int base;               // base signal in a state of silence
-int val;                // digital value of measured voltage
-int buf[600];           // buffer for val
-int i;                  // iterator
+int base = 337;         // base signal in a state of silence
+int threshold = 128;    // 
+int sampleNum = 512;        // 
+int10_t buf[512];      // buffer for val
+
 
 void setup() {
-  base = 310;
   Serial.begin(9600);
 }
 
 void loop() {
-  val = analogRead(micPin);
-  if (abs(base - val) > 100)
+  if (abs(base - analogRead(micPin)) > threshold)
   {
-    for (i = 0; i < 600; i++) {
-      val = analogRead(micPin);
-      buf[i] = val;
+    for (int i = 0; i < sampleNum; i++) {
+      buf[i] = analogRead(micPin);
     }
-    for (i = 0; i < 600; i++)
+    for (int i = 0; i < sampleNum; i++)
     {
       Serial.println(buf[i]);
     }
